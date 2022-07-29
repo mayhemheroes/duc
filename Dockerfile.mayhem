@@ -6,14 +6,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential automake p
 COPY . /repo
 WORKDIR /repo
 RUN autoreconf -if
-RUN ./configure --disable-ui
+RUN ./configure --disable-ui --prefix=/install
 RUN make -j8
-
-RUN mkdir -p /deps
-RUN ldd /repo/duc | tr -s '[:blank:]' '\n' | grep '^/' | xargs -I % sh -c 'cp % /deps;'
+RUN make install
 
 FROM ubuntu:22.04 as package
-
-COPY --from=builder /deps /deps
-COPY --from=builder /repo/duc /repo/duc
-ENV LD_LIBRARY_PATH=/deps
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libtokyocabinet-dev libcairo2-dev libpango1.0-dev
+COPY --from=builder /install /install
