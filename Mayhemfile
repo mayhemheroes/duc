@@ -2,4 +2,4 @@ project: duc
 target: duc
 
 cmds:
-  - cmd: /repo/duc info -d @@
+  - cmd: /install/bin/duc info -d @@
