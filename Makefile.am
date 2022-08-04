@@ -49,6 +49,7 @@ duc_SOURCES  += \
 	src/duc/cmd-ls.c \
 	src/duc/cmd-ui.c \
 	src/duc/cmd-xml.c \
+	src/duc/cmd-json.c \
 	src/duc/ducrc.c \
 	src/duc/ducrc.h \
 	src/duc/main.c
@@ -68,7 +69,8 @@ EXTRA_DIST = \
 	doc/duc.1 \
 	doc/duc.1.html \
 	src/libduc-graph/font.c \
-	doc/duc.md
+	doc/duc.md \
+	LICENSE
 
 install-exec-hook:
 	-/sbin/ldconfig || :;
