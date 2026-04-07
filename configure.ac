@@ -83,7 +83,12 @@ case "${with_db_backend}" in
 				  AC_DEFINE([ENABLE_TKRZW], [1], [Enable tkrzw db backend])
 			     ], [ AC_MSG_ERROR(Unable to find tkrzw) ])
 		AC_SUBST([TKRZW_LIBS])
-p		AC_SUBST([TKRZW_CFLAGS])
+		AC_SUBST([TKRZW_CFLAGS])
+
+		# Check for zstd using pkg-config
+		PKG_CHECK_MODULES([ZSTD], [libzstd >= 1.0.0],
+		    [AC_DEFINE([HAVE_ZSTD], [1], [Define to 1 if zstd is found])],
+		        [AC_MSG_ERROR([zstd library not found])])
 		;;
 	leveldb)
 		AC_CHECK_LIB([leveldb], [leveldb_open])
