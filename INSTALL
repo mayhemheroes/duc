@@ -16,7 +16,7 @@ Generate the configure script when it is not available (cloned git repo):
 To get the required dependencies on Debian or Ubuntu, run:
 
     $ sudo apt-get install libncursesw5-dev libcairo2-dev libpango1.0-dev \
-      build-essential libtkrzw-dev
+      build-essential libtkrzw-dev libzstd-dev
 
   On Debian 11 (bullseye), you need to have the following line in your
   /etc/apt/sources.list file:
@@ -28,7 +28,7 @@ To get the required dependencies on Debian or Ubuntu, run:
      $ sudo apt update
 
     $ sudo apt-get install libncursesw5-dev libcairo2-dev libpango1.0-dev \
-      build-essential libtkrzw-dev tkrzw-doc tkrzw-utils
+      build-essential libtkrzw-dev tkrzw-doc tkrzw-utils libzstd-dev
 
 
   On older RHEL or CentOS systems, you need to do:
@@ -43,11 +43,17 @@ To get the required dependencies on Debian or Ubuntu, run:
       $ sudo yum install epel-release
       $ sudo yum update
 
-    Install tkrzw and other packages:
+    Install tkrzw and other required packages:
 
-      $ sudo yum install tkrzw tkrzw-devel tkrzw-doc tkrzw-libs pango-devel cairo-devel tokyocabinet-devel
+      $ sudo yum install tkrzw tkrzw-devel tkrzw-doc tkrzw-libs pango-devel \
+        cairo-devel libzstd-devel
 
+    NOTE: for older deprecated backends you might need to install one
+    or more of the following:
 
+       tokyocabinet-devel lmdb-devel 
+
+    
 Configuration Options
 ---------------------
 
@@ -91,34 +97,42 @@ Duc comes with the following user interfaces:
 Database backends
 -----------------
 
-Duc supports various key-value database backends:
+As of v1.5.0, Duc has deprecated support of various key-value database backends:
+
   - Tokyo Cabinet:                     tokyocabinet
   - LevelDB:                           leveldb
   - Sqlite3:                           sqlite3
   - Lightning Memory-Mapped Database:  lmdb
   - Kyoto Cabinet:                     kyotocabinet
-  - Tkrzw:                             tkrzw  (default as of v1.5.0)
 
-Duc now uses Tkrzw by default: the performance is acceptable and it
-handles extremely large databases of volumes with terabytes of storage
-and millions of files.
+The default backend moving forward is the following:
+
+  - Tkrzw:                             tkrzw + zstd
+
+since the performance is acceptable and it handles extremely large
+databases of volumes with terabytes of storage and millions of files.
+To help keep down the DB size, we also require zstd compression
+library as well.  And more importantly it's actually supported and
+still developed.
 
     --with-db-backend=ARG
 
 If your system supports none of the above, contact the authors to see
-if we can add your favourite backend.
+if we can add your favourite backend, but we strongly urge you to look
+at using Tkrzw.
 
 Please note: Not all database formats can be shared between machines
 with different architectures. Notably, Tokyo Cabinet is built with
-non-standard options which break compatibility with other linux
+non-standard options which breaks compatibility with other linux
 distributions, even on the same architecture [1]. If you are planning
 to share databases between different platforms (index machine A,
-display on machine B) we recommend using the sqlite3 backend.
+display on machine B) we recommend using the sqlite3 backend.  Or
+possibly tkrzw, but this is not tested.  Reports welcome.
 
-Note, Tokyo Cabiner, Kyoto Cabinet, LevelDB and LMDB are all being
-deprecated from future versions because the lack of development and
-support for these libraries, especially for super large volumes to be
-indexed.
+Note, Tokyo Cabinet, Kyoto Cabinet, LevelDB and LMDB are all being
+deprecated from future versions of duc because the lack of development
+and support for these libraries, especially for super large volumes to
+be indexed.
 
 1. https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=667979
 
