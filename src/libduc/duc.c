@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <errno.h>
 
 #include "private.h"
 #include "duc.h"
@@ -94,7 +95,11 @@ int duc_open(duc *duc, const char *path_db, duc_open_flags flags)
 			/* Append parent folder */
 			snprintf(tmp, sizeof tmp, "%s/duc", home);
 			/* Create if needed */
-			mkdir(tmp, 0700);
+			if (mkdir(tmp, 0700) == -1) {
+			    if (errno != EEXIST) {
+				duc_log(duc, DUC_LOG_FTL, "Error creating directory \"%s\": %s\n", tmp, strerror(errno));
+			    }
+        }
 			/* Append file to folder*/
 			snprintf(tmp, sizeof tmp, "%s/duc/duc.db", home);
 			path_db = tmp;
