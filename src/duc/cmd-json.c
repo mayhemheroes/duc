@@ -12,7 +12,7 @@
 
 #include "cmd.h"
 #include "duc.h"
-	
+
 
 static bool opt_apparent = false;
 static char *opt_database = NULL;
@@ -55,9 +55,8 @@ static void dump(duc *duc, duc_dir *dir, int depth, off_t min_size, int ex_files
 
 		off_t size = duc_get_size(&e->size, st);
 
-		if (!first) printf(",\n");
-
 		if(e->type == DUC_FILE_TYPE_DIR && size>= min_size) {
+			if (!first) printf(",\n");
 			duc_dir *dir_child = duc_dir_openent(dir, e);
 			if(dir_child) {
 				indent(depth);
@@ -65,52 +64,55 @@ static void dump(duc *duc, duc_dir *dir, int depth, off_t min_size, int ex_files
 
 				indent(depth + 2);
 				printf("\"name\": \"");
-				print_escaped(e->name); 
+				print_escaped(e->name);
 				printf("\",\n");
 
 				indent(depth + 2);
 				printf("\"count\": %jd,\n", e->size.count);
 
 				indent(depth + 2);
-				printf("\"size_apparent\": %jd,\n", e->size.apparent); 
+				printf("\"size_apparent\": %jd,\n", e->size.apparent);
 
 				indent(depth + 2);
 				printf("\"size_actual\": %jd,\n", e->size.actual);
-				
+
 				indent(depth + 2);
 				printf("\"children\": [\n");
-				
+
 				dump(duc, dir_child, depth + 4, min_size, ex_files);
 
 				printf("\n");
 				indent(depth + 2);
 				printf("]\n");
-				
+
 				indent(depth);
 				printf("}");
+				first = false;
 			}
 			duc_dir_close(dir_child);
 		} else {
 			if(!ex_files && size >= min_size) {
+				if (!first) printf(",\n");
 				indent(depth);
 				printf("{\n");
 
 				indent(depth + 2);
 				printf("\"name\": \"");
-				print_escaped(e->name); 
+				print_escaped(e->name);
 				printf("\",\n");
 
 				indent(depth + 2);
-				printf("\"size_apparent\": %jd,\n", e->size.apparent); 
+				printf("\"size_apparent\": %jd,\n", e->size.apparent);
 
 				indent(depth + 2);
 				printf("\"size_actual\": %jd\n", e->size.actual);
-				
+
 				indent(depth);
 				printf("}");
+				first = false;
 			}
 		}
-		first = false;
+
 	}
 }
 
@@ -139,21 +141,21 @@ static int json_main(duc *duc, int argc, char **argv)
 
 	indent(2);
 	printf("\"name\": \"");
-	print_escaped(path); 
+	print_escaped(path);
 	printf("\",\n");
 
 	indent(2);
 	printf("\"count\": %jd,\n", size.count);
 
 	indent(2);
-	printf("\"size_apparent\": %jd,\n", size.apparent); 
+	printf("\"size_apparent\": %jd,\n", size.apparent);
 
 	indent(2);
 	printf("\"size_actual\": %jd,\n", size.actual);
-	
+
 	indent(2);
 	printf("\"children\": [\n");
-	
+
 	dump(duc, dir, 4, (off_t)opt_min_size, opt_exclude_files);
 	printf("\n");
 
